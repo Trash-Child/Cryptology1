@@ -2,89 +2,61 @@ from Crypto.Hash import SHA256
 from Crypto.Random import get_random_bytes
 from Crypto.Cipher import AES
 from Crypto.Util import Counter 
+# Import our other files
+import aes_counter_enc as our_aes
+import NMAC as our_nmac
 
-# Random Key Generator
-def KeyGen():
-    """Returns random key of 128 bits"""
-    # interval [0, 2^128-1]
+def Test(ciphertext, mac, orig_msg): #ciphertext, original message
 
-    key = get_random_bytes(16)
-    return key
-
-# Hash function
-def NMAC(msg,k1,k2):
+    rec_ctxt, rec_mac = ciphertext, mac         # "Receive" message
+    if (checkMac(rec_ctxt, rec_mac) == 0 ):     # If mac check fails, stop
+        return 0                    
     
-    # Generate digests
+    dec_msg = our_aes.Dec(key1,rec_ctxt)        # Decrypt
+    if (checkResult(dec_msg, orig_msg) == 0):
+        return 0
     
-    h1 = SHA256.new(k1 + msg) 
-    h2 = SHA256.new(k2 + h1.digest())
-    return h2.hexdigest()
+    print("Message received succesfully!")      # Show result
+    print("Message: " + dec_msg)
 
-# Padding Algorithm
-def PKCS5Padding(message):
-    """Padding algorithm PKCS #5:
-    Padding of messages to recieve length multiple of B = 128"""
-
-    B = 128
-    l = len(message)
-    lHat = [0]
-
-    # Solving eq for l^ : B = 8*(l+lHat)
-    # we assume that message length will be in range [B, 99·B]
-    for i in range(1,100):
-        if i*B - 8*l < 0:
-            continue
-        else:
-            if (i*B - 8*l) % 8 == 0 :
-                lHat[0] = (i*B-8*l) // 8
-                break
-
-    print("lHat", lHat[0])
-
-    # computing binary representation with 8 bits
-    lHatBin = bytearray(lHat)
-    print(lHatBin)
-
-    # padding the message with the binary representation of [l^] l^-times 
-    paddedMessage = message
-    for _ in range(lHat[0]):
-        paddedMessage += lHatBin
-
-    if len(paddedMessage) % 16 != 0:
-        print("ERROR in padding - not multiple of B")
-        assert False, 'Padded message not a multiple of B, length: ' + str(len(paddedMessage))
-
-    print(paddedMessage)
-    return paddedMessage
-
-
-# put the encr and decr functions here
+def checkMac(ctxt, mac): #Decrypted msg, original msg
+    if (mac == our_nmac.NMAC(ctxt, key1, key2)):
+        print("MAC ok, proceed to decryption...")
+        return 1
+    else:
+        print("MAC check failed, abort!")
+        return 0
+    
+def checkResult(dec_msg, orig_msg):
+    if(dec_msg == orig_msg):
+        print("Decryption succesful!")
+        return 1
+    else:
+        print("Decryption failed")
+        return 0
 
 # Generate keys and message
-key1 = KeyGen()
-key2 = KeyGen()
-message = "hello there! how are you doing today? do you want to drink a coffee later?"
+key1 = our_aes.KeyGen()
+key2 = our_aes.KeyGen()
+mymessage = "hello there! how are you doing today? do you want to drink a coffee later?"
+# encrypt and construct NMAC
+alice_ctxt = our_aes.Enc(mymessage, key1)
+alice_nmac = our_nmac.NMAC(alice_ctxt, key1, key2)
 
-# "send" message
+# Test before attack - should succeed
+Test(alice_ctxt, alice_nmac, mymessage)
 
-# Call test
+# Attack ciphertext
+alice_ctxt = alice_ctxt & 0b00011010010010 
 
-# Manipulate message (ciphertext)
-
-# Call test - NMAC check should fall here
-
-
-def Test(): #ciphertext, original message
-
-    # Enctrypt message
-    # Create NMAC
-
-    # Check NMAC against new NMAC, if true proceed, otherwise report
-
-    # Decrypt
-    # Check decryption
-    # Report success
+# Test after attack - should fail on NMAC-check
+Test(alice_ctxt, alice_nmac, mymessage)
 
 
-def checkResult(): #Decrypted msg, original msg
-    # If statement - decrypted message vs original
+
+
+
+
+
+
+
