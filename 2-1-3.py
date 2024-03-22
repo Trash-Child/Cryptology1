@@ -28,7 +28,7 @@ def checkMac(ctxt, mac): #Decrypted msg, original msg
         return 0
     
 def checkResult(dec_msg, orig_msg):
-    if(dec_msg == orig_msg):
+    if(dec_msg == bytes(orig_msg,"UTF-8")):
         print("Decryption succesful!")
         return 1
     else:
@@ -41,18 +41,21 @@ print("| \n| \n| TESTING in exercise 2.1.3 \n| \n|")
 key1 = our_aes.KeyGen()
 key2 = our_aes.KeyGen()
 mymessage = "hello there! how are you doing today? do you want to drink a coffee later?"
+bytemessage=bytearray(mymessage,"UTF-8")
 # encrypt and construct NMAC
-alice_ctxt = our_aes.Enc(mymessage, key1)
-alice_nmac = our_nmac.NMAC(alice_ctxt, key1, key2)
+alice_ctxt = our_aes.Enc(bytemessage, key1)
+
+byte_alice_ctxt = bytearray(alice_ctxt[0]) + bytearray(alice_ctxt[1])
+alice_nmac = our_nmac.NMAC(byte_alice_ctxt, key1, key2)
 
 # Test before attack - should succeed
-Test(alice_ctxt, alice_nmac, mymessage)
+Test(byte_alice_ctxt, alice_nmac, mymessage)
 
 # Attack ciphertext
-alice_ctxt = alice_ctxt & 0b00011010010010 
+byte_alice_ctxt = byte_alice_ctxt[1] & bytearray(0b00011010010010)[1]
 
 # Test after attack - should fail on NMAC-check
-Test(alice_ctxt, alice_nmac, mymessage)
+Test(byte_alice_ctxt, alice_nmac, mymessage)
 
 
 

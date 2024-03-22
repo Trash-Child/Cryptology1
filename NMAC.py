@@ -15,8 +15,10 @@ def KeyGen(): # Same keygen function as in 2.1.1
     key = get_random_bytes(16)
     return key
 
-def NMAC(msg,k1,k2):
-    
+def NMAC(msg,key1,key2):
+    k1 = bytearray(key1)
+    k2 = bytearray(key2)
+
     # Generate digests
     h1 = SHA256.new(k1 + msg) 
     h2 = SHA256.new(k2 + h1.digest())
@@ -25,10 +27,10 @@ def NMAC(msg,k1,k2):
 
 
 # Test 
-
+"""
 # Generate keys
-key1 = KeyGen()
-key2 = KeyGen()
+key1 = bytearray(KeyGen())
+key2 = bytearray(KeyGen())
 
 # Sender
 aliceMsg = "HelloBob"
@@ -57,5 +59,5 @@ else: print("Message not accepted")
 
 
 
-
+"""
 
