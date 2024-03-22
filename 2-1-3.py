@@ -14,7 +14,7 @@ def Test(ciphertext, mac, orig_msg, r0):        # Test encryption scheme
     if (rec_mac == our_nmac.NMAC(rec_ctxt, key1, key2)):
         print("MAC ok, proceed to decryption... ")
     else:
-        print("MAC check failed, abort!")
+        print("MAC check failed, message rejected!")
         return 0
 
     # Decrypt and check result
@@ -42,16 +42,16 @@ bytemessage=bytearray(mymessage,"UTF-8")
 S = list()
 # encrypt and construct NMAC
 alice_ctxt = our_aes.Enc(bytemessage, key1, S)
-
-byte_alice_ctxt = bytearray(alice_ctxt[2])
-alice_nmac = our_nmac.NMAC(byte_alice_ctxt, key1, key2)
 r0 = alice_ctxt[0]
+byte_alice_ctxt = bytearray(alice_ctxt[2])     
+alice_nmac = our_nmac.NMAC(byte_alice_ctxt, key1, key2)
+
 
 # Test before attack - should succeed
 print("| \n| Running test without attack (2.1.3) \n|")
 Test(byte_alice_ctxt, alice_nmac, mymessage, r0)
 
-# Attack ciphertext
+# Alter ciphertext
 new_byte_alice_ctxt = byte_alice_ctxt + bytearray(0b00011010010010)
 
 # Test after attack - should fail on NMAC-check
