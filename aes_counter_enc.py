@@ -78,7 +78,6 @@ def Enc(message, key):
 
         # computing the F(k,r) block from CTR mode
         Fkr = cipher.encrypt(r)
-        print("len Fkr", len(Fkr))
         
         # now encrypting the message by: F(k,r) xor Message
         int_cipherBlock = [0]*16
