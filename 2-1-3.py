@@ -9,32 +9,27 @@ import NMAC as our_nmac
 def Test(ciphertext, mac, orig_msg, r0): #ciphertext, original message
 
     rec_ctxt, rec_mac = ciphertext, mac         # "Receive" message
-    if (checkMac(rec_ctxt, rec_mac) == 0 ):     # If mac check fails, stop
-        return 0                    
-    
+
+    # Check MAC to protect against CCA    
+    if (rec_mac == our_nmac.NMAC(rec_ctxt, key1, key2)):
+        print("MAC ok, proceed to decryption... ")
+    else:
+        print("MAC check failed, abort!")
+        return 0
+
+    # Decrypt and check result
     dec_msg = our_aes.Dec(key1,rec_ctxt, r0)        # Decrypt
-    if (checkResult(dec_msg, orig_msg) == 0):
+    
+    if(dec_msg == bytes(orig_msg,"UTF-8")):
+        print("Decryption succesful!")
+    else:
+        print("Decryption failed")
         return 0
     
     print("Message received succesfully!")      # Show result
     print_msg = str(dec_msg, "UTF-8")
     print("Message: " + print_msg)
-
-def checkMac(ctxt, mac): #Decrypted msg, original msg
-    if (mac == our_nmac.NMAC(ctxt, key1, key2)):
-        print("MAC ok, proceed to decryption... ")
-        return 1
-    else:
-        print("MAC check failed, abort!")
-        return 0
     
-def checkResult(dec_msg, orig_msg):
-    if(dec_msg == bytes(orig_msg,"UTF-8")):
-        print("Decryption succesful!")
-        return 1
-    else:
-        print("Decryption failed")
-        return 0
 
 
 print("| \n| \n| TESTING in exercise 2.1.3 \n| \n|")
