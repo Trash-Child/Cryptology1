@@ -3,6 +3,7 @@ from Crypto.Random import get_random_bytes
 from Crypto.Util import Counter 
 
 from random import randint
+import operator
 
 ####################
 ## Exercise 2.1.1 ##
@@ -61,22 +62,49 @@ def Enc(message, key):
 
     # initalize bytes
     cipherText = bytes(0)
-    r0 = randint(0,2**128)
 
-    # create a counter for the AES encryption
-    count = Counter.new(128, initial_value=r0)
+    # creating nonce
+    r = []
+    for i in range(16):
+        r.append(randint(0,2**8))
+    r = bytearray(r)
+    # inital nonce value
+    r0 = r
 
-    # counter mode
+    # counter mode using ECB AES to encrypt one block
     for i in range(l):
         # constructing AES encryption cipher in Counter Mode from key
-        cipher = AES.new(key, AES.MODE_CTR, counter=count)
+        cipher = AES.new(key, AES.MODE_ECB)
 
-        # encrypt one block (128/8 = 16 bytes) at a time using the cipher
-        cipherBlock = cipher.encrypt(byteMessage[16*i:16*i+16])
+        # computing the F(k,r) block from CTR mode
+        Fkr = cipher.encrypt(r)
+        print("len Fkr", len(Fkr))
+        
+        # now encrypting the message by: F(k,r) xor Message
+        int_cipherBlock = [0]*16
+        int_Fkr = list(Fkr)
+        int_byteMessage = list(byteMessage[16*i:16*i+16])
+
+        for j in range(16):
+            int_cipherBlock[j] = operator.xor(int_Fkr[j], int_byteMessage[j])
+        cipherBlock = bytearray(int_cipherBlock)
 
         cipherText += cipherBlock
 
-    print(cipherText)
+        # update r: r = r+1 
+        int_r = list(r)
+        int_r[15] += 1
+        for j in range(15,-1,-1):
+            if int_r[j] >= 2**8:
+                if j != 15:
+                    int_r[j+1] += 1
+            else: 
+                break
+        r = bytearray(int_r)
+        print("r-value", int_r)
+
+    print("cipherText", cipherText)
+
     return r0, key, cipherText
 
 
@@ -86,19 +114,41 @@ def Dec(key, cipherText, r0):
     decMessage = bytes(0)
     l = len(cipherText)//16
 
-    # create a counter for the AES encryption
-    count = Counter.new(128, initial_value=r0)
+    # set intial nonce as
+    r = r0
 
-    # counter mode 
+    # counter mode using ECB AES to encrypt one block
     for i in range(l):
         # constructing AES encryption cipher in Counter Mode from key
-        cipher = AES.new(key, AES.MODE_CTR, counter=count)
+        cipher = AES.new(key, AES.MODE_ECB)
 
-        # decrypt one block (128/8 = 16 bytes) at a time using the cipher
-        msgBlock = cipher.decrypt(cipherText[16*i:16*i+16])
+        # computing the F(k,r) block from CTR mode
+        Fkr = cipher.encrypt(r)
+        print("len Fkr", len(Fkr))
+        
+        # now encrypting the message by: F(k,r) xor Message
+        int_messageBlock = [0]*16
+        int_Fkr = list(Fkr)
+        int_messageBlock = list(cipherText[16*i:16*i+16])
 
-        # concatenate and transforms to interger array
-        decMessage += msgBlock
+        for j in range(16):
+            int_messageBlock[j] = operator.xor(int_Fkr[j], int_messageBlock[j])
+        messageBlock = bytearray(int_messageBlock)
+
+        decMessage += messageBlock
+
+        # update r: r = r+1 
+        int_r = list(r)
+        int_r[15] += 1
+        for j in range(15,-1,-1):
+            if int_r[j] >= 2**8:
+                if j != 15:
+                    int_r[j+1] += 1
+            else: 
+                break
+        r = bytearray(int_r)
+        print("r-value", int_r)
+
 
     # depadding 
     padding = decMessage[len(decMessage)-1]
