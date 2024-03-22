@@ -101,7 +101,6 @@ def Enc(message, key):
             else: 
                 break
         r = bytearray(int_r)
-        print("r-value", int_r)
 
     print("cipherText", cipherText)
 
@@ -124,7 +123,6 @@ def Dec(key, cipherText, r0):
 
         # computing the F(k,r) block from CTR mode
         Fkr = cipher.encrypt(r)
-        print("len Fkr", len(Fkr))
         
         # now encrypting the message by: F(k,r) xor Message
         int_messageBlock = [0]*16
@@ -147,8 +145,6 @@ def Dec(key, cipherText, r0):
             else: 
                 break
         r = bytearray(int_r)
-        print("r-value", int_r)
-
 
     # depadding 
     padding = decMessage[len(decMessage)-1]
