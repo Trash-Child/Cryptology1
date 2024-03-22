@@ -50,11 +50,12 @@ byte_alice_ctxt = bytearray(alice_ctxt[2])
 alice_nmac = our_nmac.NMAC(byte_alice_ctxt, key1, key2)
 r0 = alice_ctxt[0]
 # Test before attack - should succeed
+print("| \n| Running test without attack 2.1.3 \n|")
 Test(byte_alice_ctxt, alice_nmac, mymessage, r0)
 
 # Attack ciphertext
 byte_alice_ctxt = byte_alice_ctxt + bytearray(0b00011010010010)
-
+print("| \n| Running test after attack 2.1.3 \n|")
 # Test after attack - should fail on NMAC-check
 Test(byte_alice_ctxt, alice_nmac, mymessage, r0)
 
