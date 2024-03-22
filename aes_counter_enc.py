@@ -112,7 +112,7 @@ def Enc(message, key, ctxtlist):
 def Dec(key, cipherText, r0, list):
     """Decryption of a ciphertext using AES encryption in CTR mode"""
 
-    # Chech list of generated ciphertexts
+    # Chech list of generated ciphertexts before decrypting
     if (cipherText in list):
         print("Replay attack suspected, abort decryption! ")
         return 0

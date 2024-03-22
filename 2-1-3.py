@@ -19,7 +19,7 @@ def Test(ciphertext, mac, orig_msg, r0):        # Test encryption scheme
 
     # Decrypt and check result
     dec_msg = our_aes.Dec(key1,rec_ctxt, r0, S)        # Decrypt
-    if(dec_msg == bytes(orig_msg,"UTF-8")):         # Check result of decryption against original message
+    if(dec_msg == bytes(orig_msg,"UTF-8")):            # Check result of decryption against original message
         print("Decryption succesful!")
     else:
         print("Decryption failed")
@@ -61,8 +61,6 @@ Test(new_byte_alice_ctxt, alice_nmac, mymessage, r0)
 # Attempt replay attack of first message and MAC
 print("| \n| Running test with replay attack (2.1.3) \n|")
 Test(byte_alice_ctxt, alice_nmac, mymessage, r0)
-
-# implement mechanism in test to create and alter array of saved stuff
 
 
 
