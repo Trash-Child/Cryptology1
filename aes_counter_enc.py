@@ -63,11 +63,12 @@ def Enc(message, key, ctxtlist):
     # initalize bytes
     cipherText = bytes(0)
 
-    # creating nonce
+    # creating nonce as a 16-byte array, each of random value 0-255
     r = []
     for i in range(16):
         r.append(randint(0,2**8))
     r = bytearray(r)
+    
     # inital nonce value
     r0 = r
 
