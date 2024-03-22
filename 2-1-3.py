@@ -21,7 +21,7 @@ def Test(ciphertext, mac, orig_msg): #ciphertext, original message
 
 def checkMac(ctxt, mac): #Decrypted msg, original msg
     if (mac == our_nmac.NMAC(ctxt, key1, key2)):
-        print("MAC ok, proceed to decryption...")
+        print("MAC ok, proceed to decryption... ")
         return 1
     else:
         print("MAC check failed, abort!")
@@ -35,6 +35,8 @@ def checkResult(dec_msg, orig_msg):
         print("Decryption failed")
         return 0
 
+
+print("| \n| \n| TESTING in exercise 2.1.3 \n| \n|")
 # Generate keys and message
 key1 = our_aes.KeyGen()
 key2 = our_aes.KeyGen()
