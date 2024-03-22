@@ -50,7 +50,7 @@ def PKCS5Padding(message):
     return paddedMessage
 
 
-def Enc(message, key):
+def Enc(message, key, ctxtlist):
     """Encryption of a message using AES encryption in CTR mode"""
     B_bytes = 128/8
 
@@ -103,11 +103,19 @@ def Enc(message, key):
 
     print("cipherText", cipherText)
 
+    # Maintain list of generated ciphertexts
+    ctxtlist.append(cipherText)
+
     return r0, key, cipherText
 
 
-def Dec(key, cipherText, r0):
+def Dec(key, cipherText, r0, list):
     """Decryption of a ciphertext using AES encryption in CTR mode"""
+
+    # Chech list of generated ciphertexts
+    if (cipherText in list):
+        print("Replay attack suspected, abort decryption! ")
+        return 0
 
     decMessage = bytes(0)
     l = len(cipherText)//16
