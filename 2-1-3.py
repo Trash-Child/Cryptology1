@@ -1,3 +1,4 @@
+# Group 25
 from Crypto.Hash import SHA256
 from Crypto.Random import get_random_bytes
 from Crypto.Cipher import AES
@@ -41,11 +42,10 @@ bytemessage=bytearray(mymessage,"UTF-8")
 # Create list S for holding already generated ciphertexts
 S = list()
 # encrypt and construct NMAC
-alice_ctxt = our_aes.Enc(bytemessage, key1, S)
+alice_ctxt = our_aes.Enc(bytemessage, key1)
 r0 = alice_ctxt[0]
 byte_alice_ctxt = bytearray(alice_ctxt[2])     
 alice_nmac = our_nmac.NMAC(byte_alice_ctxt, key1, key2)
-
 
 # Test before attack - should succeed
 print("| \n| Running test without attack (2.1.3) \n|")

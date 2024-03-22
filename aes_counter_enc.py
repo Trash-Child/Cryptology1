@@ -1,3 +1,4 @@
+# Group 25
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 from Crypto.Util import Counter 
@@ -35,7 +36,7 @@ def PKCS5Padding(message):
 
     # computing binary representation with 8 bits
     lHatBin = bytearray([lHat])
-    print(lHatBin)
+    # print(lHatBin)
 
     # padding the message with the binary representation of [l^] l^-times 
     paddedMessage = message
@@ -46,11 +47,11 @@ def PKCS5Padding(message):
         print("ERROR in padding - not multiple of B")
         assert False, 'Msg not a multiple of B, length: ' + str(len(paddedMessage))
 
-    print(paddedMessage)
+    # print(paddedMessage)
     return paddedMessage
 
 
-def Enc(message, key, ctxtlist):
+def Enc(message, key):
     """Encryption of a message using AES encryption in CTR mode"""
     B_bytes = 128/8
 
@@ -101,21 +102,23 @@ def Enc(message, key, ctxtlist):
                 break
         r = bytearray(int_r)
 
-    print("cipherText", cipherText)
+    # print("cipherText", cipherText)
 
-    # Maintain list of generated ciphertexts
-    ctxtlist.append(cipherText)
+    
 
     return r0, key, cipherText
 
 
-def Dec(key, cipherText, r0, list):
+def Dec(key, cipherText, r0, ctxtlist):
     """Decryption of a ciphertext using AES encryption in CTR mode"""
 
     # Chech list of generated ciphertexts before decrypting
-    if (cipherText in list):
+    if (cipherText in ctxtlist):
         print("Replay attack suspected, abort decryption! ")
         return 0
+    
+    # Maintain list of generated ciphertexts
+    ctxtlist.append(cipherText)
 
     decMessage = bytes(0)
     l = len(cipherText)//16
