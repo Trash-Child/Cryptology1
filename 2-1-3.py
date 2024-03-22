@@ -6,18 +6,19 @@ from Crypto.Util import Counter
 import aes_counter_enc as our_aes
 import NMAC as our_nmac
 
-def Test(ciphertext, mac, orig_msg): #ciphertext, original message
+def Test(ciphertext, mac, orig_msg, r0): #ciphertext, original message
 
     rec_ctxt, rec_mac = ciphertext, mac         # "Receive" message
     if (checkMac(rec_ctxt, rec_mac) == 0 ):     # If mac check fails, stop
         return 0                    
     
-    dec_msg = our_aes.Dec(key1,rec_ctxt)        # Decrypt
+    dec_msg = our_aes.Dec(key1,rec_ctxt, r0)        # Decrypt
     if (checkResult(dec_msg, orig_msg) == 0):
         return 0
     
     print("Message received succesfully!")      # Show result
-    print("Message: " + dec_msg)
+    print_msg = str(dec_msg, "UTF-8")
+    print("Message: " + print_msg)
 
 def checkMac(ctxt, mac): #Decrypted msg, original msg
     if (mac == our_nmac.NMAC(ctxt, key1, key2)):
@@ -45,17 +46,17 @@ bytemessage=bytearray(mymessage,"UTF-8")
 # encrypt and construct NMAC
 alice_ctxt = our_aes.Enc(bytemessage, key1)
 
-byte_alice_ctxt = bytearray(alice_ctxt[0]) + bytearray(alice_ctxt[1])
+byte_alice_ctxt = bytearray(alice_ctxt[2])
 alice_nmac = our_nmac.NMAC(byte_alice_ctxt, key1, key2)
-
+r0 = alice_ctxt[0]
 # Test before attack - should succeed
-Test(byte_alice_ctxt, alice_nmac, mymessage)
+Test(byte_alice_ctxt, alice_nmac, mymessage, r0)
 
 # Attack ciphertext
-byte_alice_ctxt = byte_alice_ctxt[1] & bytearray(0b00011010010010)[1]
+byte_alice_ctxt = byte_alice_ctxt + bytearray(0b00011010010010)
 
 # Test after attack - should fail on NMAC-check
-Test(byte_alice_ctxt, alice_nmac, mymessage)
+Test(byte_alice_ctxt, alice_nmac, mymessage, r0)
 
 
 
